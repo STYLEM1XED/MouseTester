@@ -381,7 +381,7 @@
             this.groupBox2.Size = new System.Drawing.Size(135, 71);
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Data Point Start";
+            this.groupBox2.Text = "Time Start (ms)";
             // 
             // numericUpDownStart
             // 
@@ -398,7 +398,7 @@
             this.groupBox3.Size = new System.Drawing.Size(135, 71);
             this.groupBox3.TabIndex = 6;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Data Point End";
+            this.groupBox3.Text = "Time End (ms)";
             // 
             // numericUpDownEnd
             // 

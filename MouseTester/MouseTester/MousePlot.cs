@@ -21,7 +21,9 @@ namespace MouseTester
     {
         private MouseLog mlog;
         private int last_start;
+        private double last_start_time;
         private int last_end;
+        private double last_end_time;
         double x_min;
         double x_max;
         double y_min;
@@ -52,21 +54,27 @@ namespace MouseTester
             }
             this.mlog.Add(new MouseEvent(buttonflags, x, y, ts));
 
-            this.last_start = this.mlog.Events.Count > 100 ? 100 : 0;
-            this.last_end = this.mlog.Events.Count - 1;
+            this.last_end = mlog.Events.Count - 1;
+            this.last_end_time = Mlog.Events[this.last_end].ts;
+
+            this.last_start_time = mlog.Events[last_end].ts > 100 ? 100 : 0;
             initialize_plot();
 
             this.comboBoxPlotType.SelectedIndex = 0;
             this.comboBoxPlotType.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
 
             this.numericUpDownStart.Minimum = 0;
-            this.numericUpDownStart.Maximum = this.mlog.Events.Count - 1;
-            this.numericUpDownStart.Value = last_start;
+            this.numericUpDownStart.Maximum = (decimal)last_end_time;
+            this.numericUpDownStart.Value = (decimal)last_start_time;
+            this.numericUpDownStart.DecimalPlaces = 3;
+            this.numericUpDownStart.Increment = 10;
             this.numericUpDownStart.ValueChanged += new System.EventHandler(this.numericUpDownStart_ValueChanged);
 
             this.numericUpDownEnd.Minimum = 0;
-            this.numericUpDownEnd.Maximum = this.mlog.Events.Count - 1;
-            this.numericUpDownEnd.Value = last_end;
+            this.numericUpDownEnd.Maximum = (decimal)last_end_time;
+            this.numericUpDownEnd.Value = (decimal)last_end_time;
+            this.numericUpDownEnd.DecimalPlaces = 3;
+            this.numericUpDownEnd.Increment = 10;
             this.numericUpDownEnd.ValueChanged += new System.EventHandler(this.numericUpDownEnd_ValueChanged);
 
             this.checkBoxStem.Checked = false;
@@ -94,6 +102,28 @@ namespace MouseTester
 
         private void refresh_plot()
         {
+            for (int j = 0; j < mlog.Events.Count; j++) {
+                double currentTimeStamp = mlog.Events[j].ts;
+
+                if (currentTimeStamp >= last_start_time) {
+                    last_start = j;
+                    last_start_time = currentTimeStamp;
+                    numericUpDownStart.Value = (decimal)currentTimeStamp;
+                    break;
+                }
+            }
+
+            for (int j = mlog.Events.Count - 1; j >= 0; j--) {
+                double currentTimeStamp = mlog.Events[j].ts;
+
+                if (currentTimeStamp <= last_end_time) {
+                    last_end = j;
+                    last_end_time = currentTimeStamp;
+                    numericUpDownEnd.Value = (decimal)currentTimeStamp;
+                    break;
+                }
+            }
+
             PlotModel pm = plot1.Model;
             pm.Series.Clear();
             pm.Axes.Clear();
@@ -655,11 +685,11 @@ namespace MouseTester
         {
             if (numericUpDownStart.Value >= numericUpDownEnd.Value)
             {
-                numericUpDownStart.Value = last_start;
+                numericUpDownStart.Value = (decimal)last_start_time;
             }
             else
             {
-                last_start = (int)numericUpDownStart.Value;
+                last_start_time = (double)numericUpDownStart.Value;
                 refresh_plot();
             }
         }
@@ -668,11 +698,11 @@ namespace MouseTester
         {
             if (numericUpDownEnd.Value <= numericUpDownStart.Value)
             {
-                numericUpDownEnd.Value = last_end;
+                numericUpDownEnd.Value = (decimal)last_end_time;
             }
             else
             {
-                last_end = (int)numericUpDownEnd.Value;
+                last_end_time = (double)numericUpDownEnd.Value;
                 refresh_plot();
             }
         }
